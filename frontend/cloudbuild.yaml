@@ -1,0 +1,32 @@
+steps:
+  # Build the container image with API URL
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'VITE_API_URL=https://transfer-backend-504154196290.northamerica-northeast1.run.app'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/transfer-frontend'
+      - '.'
+
+  # Push the container image to Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/transfer-frontend']
+
+  # Deploy container image to Cloud Run
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: gcloud
+    args:
+      - 'run'
+      - 'deploy'
+      - 'transfer-frontend'
+      - '--image'
+      - 'gcr.io/$PROJECT_ID/transfer-frontend'
+      - '--region'
+      - 'northamerica-northeast1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
+
+images:
+  - 'gcr.io/$PROJECT_ID/transfer-frontend'
